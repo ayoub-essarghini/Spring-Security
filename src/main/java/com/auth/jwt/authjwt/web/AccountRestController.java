@@ -3,6 +3,7 @@ package com.auth.jwt.authjwt.web;
 import com.auth.jwt.authjwt.dto.RoleUserForm;
 import com.auth.jwt.authjwt.model.AppUser;
 import com.auth.jwt.authjwt.services.AccountService;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+
 public class AccountRestController {
 
     private final AccountService accountService;
@@ -19,6 +21,7 @@ public class AccountRestController {
         this.accountService = accountService;
     }
     @GetMapping(path = "/users")
+    @PostAuthorize("hasAuthority('ADMIN')")
     public List<AppUser> getUsers() {
         return accountService.listUsers();
     }

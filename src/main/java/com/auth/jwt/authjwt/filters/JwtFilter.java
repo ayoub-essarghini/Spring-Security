@@ -51,22 +51,18 @@ public class JwtFilter extends UsernamePasswordAuthenticationFilter {
                                 .withIssuer(request.getRequestURL().toString())
                                         .withClaim("roles",user.getAuthorities().stream().map(ga->ga.getAuthority()).collect(Collectors.toList()))
                                                 .sign(algorithm);
+        String jwtRefreshToken = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis()+15*60*1000))
+                .withIssuer(request.getRequestURL().toString())
+
+                .sign(algorithm);
         // JSON Response with token details
-        Map<String, Object> tokenDetails = new HashMap<>();
+        Map<String, String> tokenDetails = new HashMap<>();
         tokenDetails.put("access_token", jwtAccessToken);
-        tokenDetails.put("expires_at", new Date(System.currentTimeMillis() + 5 * 60 * 1000));
-        tokenDetails.put("issuer", request.getRequestURL().toString());
-        tokenDetails.put("username", user.getUsername());
-        tokenDetails.put("roles", user.getAuthorities().stream().map(ga -> ga.getAuthority()).collect(Collectors.toList()));
-
-        // Set response headers
+        tokenDetails.put("refresh_token", jwtRefreshToken);
         response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        // Convert the token details map to JSON and write to the response
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonResponse = mapper.writeValueAsString(tokenDetails);
-        response.getWriter().write(jsonResponse);
+        new ObjectMapper().writeValue(response.getOutputStream(), tokenDetails);
 
     }
 

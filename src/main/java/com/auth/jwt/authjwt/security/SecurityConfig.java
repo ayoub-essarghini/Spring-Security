@@ -1,11 +1,13 @@
 package com.auth.jwt.authjwt.security;
 
+import com.auth.jwt.authjwt.filters.JwtAuthFilter;
 import com.auth.jwt.authjwt.filters.JwtFilter;
 import com.auth.jwt.authjwt.model.AppUser;
 import com.auth.jwt.authjwt.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.stereotype.Service;
 
@@ -74,7 +77,8 @@ public class SecurityConfig{
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilter(new JwtFilter(authenticationManager));
+                .addFilter(new JwtFilter(authenticationManager))
+                .addFilterBefore(new JwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
